@@ -93,7 +93,11 @@ def linear_query(api_key: str, query: str, variables: dict | None = None) -> dic
         headers={"Authorization": api_key, "Content-Type": "application/json"},
         timeout=60,
     )
-    resp.raise_for_status()
+    if resp.status_code != 200:
+        # Print Linear's actual error response so we can see what went wrong
+        print(f"Linear API returned HTTP {resp.status_code}:")
+        print(resp.text)
+        resp.raise_for_status()
     data = resp.json()
     if "errors" in data:
         raise RuntimeError(f"Linear GraphQL error: {data['errors']}")
@@ -101,16 +105,14 @@ def linear_query(api_key: str, query: str, variables: dict | None = None) -> dic
 
 
 ISSUES_QUERY = """
-query InitiativeIssues($id: String!, $after: String) {
+query InitiativeIssues($id: String!) {
   initiative(id: $id) {
     id
     name
-    targetDate
-    projects(first: 50) {
+    projects {
       nodes {
         id
         name
-        team { name }
       }
     }
   }
