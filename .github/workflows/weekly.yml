@@ -1,0 +1,41 @@
+name: Weekly Townhomes Status
+
+on:
+  # Friday 13:00 UTC = 9am EDT (Mar–Nov) / 8am EST (Nov–Mar). Close enough to "Friday morning ET".
+  # GitHub Actions cron can be delayed up to ~15 min under load — that's fine for a weekly status post.
+  schedule:
+    - cron: "0 13 * * 5"
+  # Lets you trigger a run manually from the Actions tab for testing.
+  workflow_dispatch:
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # required so the action can commit the new chart PNGs back to the repo
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          # We need the full history available to push back; default 1-deep is fine for our case.
+          fetch-depth: 1
+          # GITHUB_TOKEN is auto-injected; gives the workflow push rights to this repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run weekly report
+        env:
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GITHUB_ACTOR: ${{ github.actor }}
+        run: python3 process.py
