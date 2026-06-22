@@ -275,7 +275,7 @@ def render_progress_chart(
     hist_x, hist_iss = smooth(dates, open_iss)
     hist_x_pts, hist_pts_y = smooth(dates, open_pts)
 
-    l1, = ax1.plot_date(
+    l1, = ax1.plot(
         hist_x, hist_iss, "-", color="#1f77b4", linewidth=2.0,
         label="Open tickets (count)",
     )
@@ -285,7 +285,7 @@ def render_progress_chart(
     ax1.set_ylim(bottom=0)
 
     ax2 = ax1.twinx()
-    l2, = ax2.plot_date(
+    l2, = ax2.plot(
         hist_x_pts, hist_pts_y, "-", color="#ff7f0e", linewidth=2.0,
         label="Open points (story-point sum)",
     )
