@@ -17,7 +17,8 @@ Repo-internal config (edit at top of file when needed):
   ENGINEERS / POINTS_PER_ENGINEER_PER_SPRINT / SPRINT_LENGTH_WEEKS
   HISTORY_START                          — first date to plot
   GA_TARGET / MERGE_TO_DEV               — milestone markers
-  OUT_OF_SCOPE_PROJECTS                  — project names to drop from scope
+  OUT_OF_SCOPE_PROJECTS / OUT_OF_SCOPE_PROJECT_IDS
+                                         — project names/ids to drop from scope
   REPO_OWNER / REPO_NAME / DEFAULT_BRANCH — used to build raw URLs
 """
 from __future__ import annotations
@@ -61,6 +62,12 @@ OUT_OF_SCOPE_PROJECTS = {
     "Datums - Level Improvements",
     "Origin Relative Datums",
     "Move Facade, Foundation, and Level Datums to the Explorer Menu",
+}
+
+OUT_OF_SCOPE_PROJECT_IDS = {
+    # Post-GA cleanup work. Exclude this project from reporting so GA launch
+    # metrics only reflect active pre-launch townhomes work.
+    "90c2bc33-2456-4a1a-83dc-c277d57647a0",
 }
 
 AMCB_PROJECTS = {
@@ -149,7 +156,7 @@ def fetch_initiative_issues(api_key: str, initiative_id: str) -> tuple[dict, lis
     projects = init["projects"]["nodes"]
     issues: list[dict] = []
     for proj in projects:
-        if proj["name"] in OUT_OF_SCOPE_PROJECTS:
+        if proj["name"] in OUT_OF_SCOPE_PROJECTS or proj["id"] in OUT_OF_SCOPE_PROJECT_IDS:
             continue
         cursor = None
         while True:
