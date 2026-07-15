@@ -43,7 +43,7 @@ from scipy.interpolate import PchipInterpolator  # noqa: E402
 # Configuration
 # ----------------------------------------------------------------------------
 INITIATIVE_ID = "38249c25-a4f8-4306-97a1-7b21361ec609"
-ENGINEERS = ["Jesse", "Paul", "Joss", "AMC Bridge engineer 1", "AMC Bridge engineer 2"]
+ENGINEERS = ["Joss", "Paul M", "Vlad", "Denys", "Oleksandr", "Eldor"]
 POINTS_PER_ENGINEER_PER_SPRINT = 7
 SPRINT_LENGTH_WEEKS = 2
 WEEKLY_THROUGHPUT = (
