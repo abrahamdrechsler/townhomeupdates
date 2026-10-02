@@ -17,6 +17,7 @@ Repo-internal config (edit at top of file when needed):
   ENGINEERS / POINTS_PER_ENGINEER_PER_SPRINT / SPRINT_LENGTH_WEEKS
   HISTORY_START                          — first date to plot
   GA_TARGET / MERGE_TO_DEV               — milestone markers
+  REPORT_END_DATE                        — final date on which reports may run
   OUT_OF_SCOPE_PROJECTS / OUT_OF_SCOPE_PROJECT_IDS
                                          — project names/ids to drop from scope
   REPO_OWNER / REPO_NAME / DEFAULT_BRANCH — used to build raw URLs
@@ -48,11 +49,12 @@ POINTS_PER_ENGINEER_PER_SPRINT = 7
 SPRINT_LENGTH_WEEKS = 2
 WEEKLY_THROUGHPUT = (
     len(ENGINEERS) * POINTS_PER_ENGINEER_PER_SPRINT / SPRINT_LENGTH_WEEKS
-)  # 17.5 pts/week
+)  # 21 pts/week
 
 HISTORY_START = datetime(2025, 10, 6, tzinfo=timezone.utc)
 GA_TARGET = datetime(2026, 7, 31, tzinfo=timezone.utc)
 MERGE_TO_DEV = datetime(2026, 7, 17, tzinfo=timezone.utc)
+REPORT_END_DATE = datetime(2026, 10, 31, tzinfo=timezone.utc)
 
 OUT_OF_SCOPE_PROJECTS = {
     # Datum/level projects removed from Multi-unit initiative 2026-05-12.
@@ -64,11 +66,7 @@ OUT_OF_SCOPE_PROJECTS = {
     "Move Facade, Foundation, and Level Datums to the Explorer Menu",
 }
 
-OUT_OF_SCOPE_PROJECT_IDS = {
-    # Post-GA cleanup work. Exclude this project from reporting so GA launch
-    # metrics only reflect active pre-launch townhomes work.
-    "90c2bc33-2456-4a1a-83dc-c277d57647a0",
-}
+OUT_OF_SCOPE_PROJECT_IDS: set[str] = set()
 
 AMCB_PROJECTS = {
     "AMCB Townhomes Showroom+Config",
@@ -327,7 +325,11 @@ def render_progress_chart(
     )
 
     xmin = dates[0]
-    xmax = GA_TARGET + timedelta(days=20)
+    xmax = max(
+        GA_TARGET + timedelta(days=20),
+        today + timedelta(days=20),
+        proj_dates[-1] + timedelta(days=7),
+    )
     ax1.set_xlim(xmin, xmax)
     ax2.set_xlim(xmin, xmax)
     ax1.legend(
@@ -453,13 +455,20 @@ def commit_and_push(report_dir: str, report_date: str) -> None:
 # Main
 # ----------------------------------------------------------------------------
 def main() -> int:
+    today = datetime.now(timezone.utc)
+    if today.date() > REPORT_END_DATE.date():
+        print(
+            f"Reporting ended on {REPORT_END_DATE.date().isoformat()}; "
+            "skipping report generation and Slack post."
+        )
+        return 0
+
     linear_key = os.environ.get("LINEAR_API_KEY")
     slack_url = os.environ.get("SLACK_WEBHOOK_URL")
     if not linear_key or not slack_url:
         print("ERROR: LINEAR_API_KEY and SLACK_WEBHOOK_URL env vars are required.")
         return 1
 
-    today = datetime.now(timezone.utc)
     today_str = today.strftime("%Y-%m-%d")
     print(f"Running for {today_str}...")
 

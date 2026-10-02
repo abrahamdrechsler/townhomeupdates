@@ -2,7 +2,7 @@
 
 Weekly status report automation for the **Townhomes (Multi-Unit)** Linear initiative.
 
-Every Friday morning (13:00 UTC ≈ 9 AM EDT / 8 AM EST), a GitHub Actions workflow:
+Every Friday morning through **2026-10-31** (13:00 UTC ≈ 9 AM EDT / 8 AM EST), a GitHub Actions workflow:
 
 1. Queries the Linear API for current ticket data in the `Multi-unit Support` initiative
 2. Renders two charts (`progress_combined.png`, `allocation.png`) and commits them under `reports/YYYY-MM-DD/`
@@ -63,7 +63,8 @@ Inside `process.py` (top of file):
 - `ENGINEERS`, `POINTS_PER_ENGINEER_PER_SPRINT`, `SPRINT_LENGTH_WEEKS` — velocity math
 - `HISTORY_START` — first date to plot on the historical chart
 - `GA_TARGET`, `MERGE_TO_DEV` — milestone vertical lines
-- `OUT_OF_SCOPE_PROJECTS` — project names that should NOT count toward the initiative even if attached
+- `REPORT_END_DATE` — final date on which a report may be generated or posted
+- `OUT_OF_SCOPE_PROJECTS`, `OUT_OF_SCOPE_PROJECT_IDS` — projects that should NOT count toward the initiative even if attached
 - `AMCB_PROJECTS` — projects lumped together as a single "AMCB Projects" row in the allocation chart
 - `REPO_OWNER`, `REPO_NAME`, `DEFAULT_BRANCH` — used to build the public chart URLs
 
@@ -74,5 +75,6 @@ To change the day/time, edit `.github/workflows/weekly.yml` and update the cron 
 - **GitHub Actions schedule isn't precise** — runs can be delayed up to ~15 min during high-load periods. Acceptable for a weekly status post.
 - **`raw.githubusercontent.com` URLs** require the repo to be public. If you need this to be private, you'll have to host charts elsewhere (S3, Cloudinary, etc.) and the workflow needs to be modified to upload there instead.
 - **The repo doubles as your weekly archive** — every report is in `reports/YYYY-MM-DD/`. Old runs are immutable.
+- **The workflow becomes a no-op after 2026-10-31** — scheduled runs exit before querying Linear, generating charts, committing files, or posting to Slack.
 - **Linear PF tickets** (team prefix `PF -`) are excluded from the report at fetch time — they're unscoped feature requests and distort engineering velocity.
 - **Datum/level projects** that were removed from the Multi-unit initiative on 2026-05-12 are listed in `OUT_OF_SCOPE_PROJECTS` as a safety net in case Linear ever surfaces them again.
