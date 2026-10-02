@@ -515,7 +515,7 @@ def main() -> int:
         pp["members"].add(name)
         pp["total_issues"] += 1
         pp["total_points"] += i.get("estimate") or 0
-        if i["state"]["type"] in {"started", "unstarted", "backlog"}:
+        if i["state"]["type"] in {"triage", "started", "unstarted", "backlog"}:
             pp["open_issues"] += 1
             pp["open_points"] += i.get("estimate") or 0
         elif i["state"]["type"] == "completed":
