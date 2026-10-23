@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-23",
+  "generated_at": "2026-10-23T20:24:14.276973+00:00",
+  "projects": [
+    {
+      "id": "e648f625-5907-47ff-a900-d9a2f58156df",
+      "name": "Wall Planes for Distributor GA",
+      "url": "https://linear.app/higharc/project/wall-planes-for-distributor-ga-442a113f4b63",
+      "open": 100,
+      "completed": 186,
+      "total": 286,
+      "created_7d": 15,
+      "completed_7d": 5
+    },
+    {
+      "id": "930a1529-cec2-41ad-a48b-215f44d66eca",
+      "name": "Wall Planes GA for Enterprise",
+      "url": "https://linear.app/higharc/project/wall-planes-ga-for-enterprise-0ac27a1c3c1b",
+      "open": 0,
+      "completed": 0,
+      "total": 0,
+      "created_7d": 0,
+      "completed_7d": 0
+    }
+  ],
+  "totals": {
+    "open": 100,
+    "completed": 186,
+    "total": 286,
+    "created_7d": 15,
+    "completed_7d": 5
+  }
+}
