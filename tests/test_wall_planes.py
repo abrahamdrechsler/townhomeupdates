@@ -38,7 +38,7 @@ class WallPlanesReportTests(unittest.TestCase):
         self.assertEqual([i["id"] for i in report.recent(issues, "createdAt", TODAY)], ["now", "recent"])
 
     def test_projects_remain_separate_and_empty_project_is_visible(self):
-        projects = [project("Distributor", [issue("one")]), project("Enterprise", [])]
+        projects = [project("Distributor", [issue("one", title='A <wall> & detail with "quotes" and an apostrophe\'s')]), project("Enterprise", [])]
         result = report.build_report(projects, TODAY)
         self.assertEqual(result["totals"]["open"], 1)
         self.assertEqual(result["projects"][1]["total"], 0)
@@ -47,6 +47,8 @@ class WallPlanesReportTests(unittest.TestCase):
         self.assertIn("Wall Planes Enterprise", text)
         self.assertIn("No tickets in scope yet", text)
         self.assertIn("A &lt;wall&gt; &amp; detail", text)
+        self.assertNotIn("&quot;", text)
+        self.assertNotIn("&#x27;", text)
         self.assertNotIn("Townhomes", text)
 
     @patch("wall_planes.linear_query")

@@ -168,7 +168,7 @@ def slack_payload(projects: list[dict], report: dict, image_base: str) -> dict:
     for project, row in zip(projects, report["projects"]):
         blocks.append({"type": "divider"})
         blocks.append(section(
-            f"*<{row['url']}|{html.escape(row['name'])}>*\n"
+            f"*<{row['url']}|{html.escape(row['name'], quote=False)}>*\n"
             f"• *{row['open']} open* · {row['completed']} completed · {row['total']} total\n"
             f"• Last 7 days: *{row['created_7d']} created* · *{row['completed_7d']} completed*"
             + ("\n_No tickets in scope yet._" if row["total"] == 0 else "")
@@ -179,7 +179,8 @@ def slack_payload(projects: list[dict], report: dict, image_base: str) -> dict:
                 lines = [f"*{heading}*"]
                 shown = 0
                 for issue in issues[:5]:
-                    title = html.escape(issue["title"][:200])
+                    # Slack only decodes &, < and > entities; leave quotes literal.
+                    title = html.escape(issue["title"][:200], quote=False)
                     line = f"• <{issue['url']}|{issue['identifier']}> — {title}"
                     if len("\n".join(lines + [line])) > 2800:
                         break
