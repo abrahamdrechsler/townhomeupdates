@@ -8,6 +8,10 @@ on:
   # Lets you trigger a run manually from the Actions tab for testing.
   workflow_dispatch:
 
+concurrency:
+  group: weekly-report-publish
+  cancel-in-progress: false
+
 jobs:
   weekly:
     runs-on: ubuntu-latest
@@ -17,6 +21,8 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
         with:
+          # Resolve the current branch head after waiting for the other report.
+          ref: ${{ github.ref_name }}
           # We need the full history available to push back; default 1-deep is fine for our case.
           fetch-depth: 1
           # GITHUB_TOKEN is auto-injected; gives the workflow push rights to this repo

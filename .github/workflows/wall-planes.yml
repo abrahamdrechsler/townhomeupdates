@@ -1,0 +1,50 @@
+name: Weekly Wall Planes Status
+
+on:
+  schedule:
+    - cron: "0 13 * * 5"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Commit charts and post to project-wall-planes
+        type: boolean
+        default: false
+
+# Both reports push chart commits to main. Serialize checkout through publish.
+concurrency:
+  group: weekly-report-publish
+  cancel-in-progress: false
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Test report logic
+        run: python -m unittest discover -s tests -v
+      - name: Generate weekly report
+        env:
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          WALL_PLANES_SLACK_WEBHOOK_URL: ${{ secrets.WALL_PLANES_SLACK_WEBHOOK_URL }}
+          PUBLISH: ${{ github.event_name == 'schedule' || inputs.publish }}
+        run: |
+          if [ "$PUBLISH" = "true" ]; then
+            python wall_planes.py --publish
+          else
+            python wall_planes.py
+          fi
+      - name: Save report preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: wall-planes-report
+          path: reports/wall-planes/

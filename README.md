@@ -1,4 +1,58 @@
-# townhomeupdate
+# Townhomes and Wall Planes weekly updates
+
+## Wall Planes
+
+`wall_planes.py` and `.github/workflows/wall-planes.yml` publish a separate weekly
+report to **#project-wall-planes** (`C0ALM094YSG`) every Friday at **13:00 UTC**
+(9 AM EDT / 8 AM EST), matching the Townhomes schedule. This report has no end-date cutoff.
+
+The two explicitly configured Linear project IDs are tracked separately:
+
+- [Wall Planes for Distributor GA](https://linear.app/higharc/project/wall-planes-for-distributor-ga-442a113f4b63)
+  (`e648f625-5907-47ff-a900-d9a2f58156df`)
+- [Wall Planes GA for Enterprise](https://linear.app/higharc/project/wall-planes-ga-for-enterprise-0ac27a1c3c1b)
+  (`930a1529-cec2-41ad-a48b-215f44d66eca`)
+
+The report uses **ticket counts**, including unestimated tickets, every team, and
+archived tickets. Canceled tickets are excluded from current totals. Each project
+gets open/completed/total counts, last-seven-day created/completed counts, and up
+to five links for each weekly list. Empty projects remain visible. Story-point
+forecasts are not used. Current totals use workflow states; historical open counts
+are approximate reconstructions from issue dates within today's project scope,
+so transfers and reopenings can change past values. "Created" means issue creation,
+not when a ticket moved into the project.
+
+Charts and aggregate counts are committed under `reports/wall-planes/YYYY-MM-DD/`.
+As with Townhomes, these charts are public in this repository so Slack can render
+them. Issue titles are sent to Slack, not saved in the public report archive.
+Both workflows share a concurrency group and check out the latest branch head
+after waiting, preventing their chart pushes from racing.
+
+### Setup and verification
+
+The existing `LINEAR_API_KEY` repository secret is reused. Add a separate
+`WALL_PLANES_SLACK_WEBHOOK_URL` repository secret with an incoming webhook for
+**#project-wall-planes**. Do not reuse or replace the Townhomes webhook; Slack
+incoming webhooks are tied to their configured channel.
+
+```bash
+python -m unittest discover -s tests -v
+python wall_planes.py             # live preview; no git push or Slack post
+python wall_planes.py --publish   # commit charts, then post to Wall Planes
+```
+
+Both commands need `LINEAR_API_KEY`; publishing also needs
+`WALL_PLANES_SLACK_WEBHOOK_URL`. An offline preview can use `--input projects.json
+--output /tmp/wall-planes-preview`, where the JSON contains project objects with
+`id`, `name`, `url`, and `issues` matching the GraphQL fields in `wall_planes.py`.
+Fixture input and custom output paths cannot be used with `--publish`.
+
+In GitHub Actions, **Weekly Wall Planes Status → Run workflow** defaults to preview
+mode and saves chart artifacts. Select `publish` to deliver the report. Scheduled
+runs publish automatically. A failed Slack delivery fails the run; check the
+channel before retrying because reruns can produce a duplicate post.
+
+## Original Townhomes automation
 
 Weekly status report automation for the **Townhomes (Multi-Unit)** Linear initiative.
 
